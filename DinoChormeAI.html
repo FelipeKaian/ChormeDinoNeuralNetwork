@@ -1,0 +1,336 @@
+
+<html>
+	<head>
+	</head>
+	<body>	
+		<script>
+
+		const dr1 = new Image();
+		dr1.src = "images/run1.png";
+
+		const dr2 = new Image();
+		dr2.src = "images/run2.png";
+
+		const cac1 = new Image();
+		cac1.src = "images/CACTUS1.png";
+
+		const cac2 = new Image();
+		cac2.src = "images/CACTUS2.png";
+
+		const cac3 = new Image();
+		cac3.src = "images/CACTUS3.png";
+
+		const cac4 = new Image();
+		cac4.src = "images/CACTUS4.png";
+
+		const cac5 = new Image();
+		cac5.src = "images/CACTUS5.png";		
+
+		const gravity = 1;	
+
+		var canvas,ctx,sh = 500,sw = 500,dh=47,dw=44,ch = 50,speed = 10,score = 0,maxscore = 0,fps = 25,lastout,hcactus = 50,frames=0,timespawn = 100,brn=[[1,1,1],[1,1]];
+
+		var cactus = [];
+
+		function insertcactu(){
+
+			cactu = {x:500,w:Math.floor(Math.random()*25)+25,cac:Math.floor(Math.random()*5)+1}
+			if(cactu.w >= 40){
+				cactu.cac=5;
+			}
+			cactus.push(cactu);
+
+		}
+
+		var dinos = [];
+
+		function insertdinos(){
+
+			dinos.push({y:0,spdy:0,rn:brn,jumps:0});
+
+			let change = Math.round(Math.random()*2);
+
+			var dino = {},c0,c1;
+
+			for (var j = 9- 1; j >= 0; j--) {
+				
+			dino = {y:0,spdy:0,rn:[],jumps:0};
+
+			c0 = [0,0,0];
+
+			c1 = [0,0];
+
+			if(change >= 3){
+				c1[change-3] = r();
+			}else{
+				c0[change] = r();
+			}
+
+			for (var i = brn[0].length - 1; i >= 0; i--) {
+				c0[i] += brn[0][i];
+			}
+			for (var i = brn[1].length - 1; i >= 0; i--) {
+				c1[i] += brn[1][i];
+			}
+
+			dino.rn.push(c0);
+			dino.rn.push(c1);
+			
+			dinos.push(dino);
+
+			dino = {};
+
+			}
+
+			
+		}
+
+		function r(){
+			return (Math.random()*10)-5;
+		}
+
+		function out(x){
+
+			var c0 = dinos[x].rn[0],c1 = dinos[x].rn[1];
+
+			let v = [0,0,0],rt = [[0,0,0],[0,0]],output=0;
+
+			v[0] = speed;
+
+			
+			if(cactus.length>0){
+				v[1] = cactus[0].w;
+			}
+
+			if(cactus.length>0){
+
+				if(cactus[0].x < 50){
+					v[2] = 0;
+				}else{
+					v[2] = 450-(Math.floor(cactus[0].x-50+1));
+				}
+				
+			}
+
+
+
+			for (var i = v.length - 1; i >= 0; i--) {
+
+				rt[0][i] = v[i] * c0[i];
+
+			}		
+
+
+			for (var j = c1.length - 1; j >= 0; j--) {
+
+				for (var i = c0.length - 1; i >= 0; i--) {
+
+					rt[1][j] += rt[0][i] * c1[j];
+
+				}
+			}
+
+			for (var i = rt[1].length - 1; i >= 0; i--) {
+				output += rt[1][i];
+			}
+
+			if(x == 0){
+				drawrn(rt,v,output);
+			}
+			
+			if(lastout != output){
+				if(x == 0){
+					//console.log(output);
+				}
+				lastout = output;
+			}
+			
+			return output
+		}
+
+		main();
+
+		function jump(i){
+			if(dinos[i].y == 0){
+				dinos[i].spdy = 13;
+				dinos[i].jumps++;
+
+			}
+		}
+
+		document.addEventListener("click",function(event) {
+			if(fps == 1){
+				fps = 25;
+			}else{
+				fps = 1;
+			}
+		});
+
+		function main(){
+
+			canvas = document.createElement("canvas");
+			canvas.width = sw;
+			canvas.height = sh;
+			canvas.style.border = "1px solid #000";
+
+			ctx = canvas.getContext("2d");
+			document.body.appendChild(canvas);
+
+		}
+
+		setInterval(function(){
+
+			if(dinos.length > 0){
+				ctx.fillStyle = "#ffffff";
+				ctx.fillRect(0,0,sw,sh);
+				frames++;
+				score++;
+				if(score>maxscore){
+						maxscore = score;
+					}
+				update();
+				draw();
+			}else{
+				speed = 10;
+				score = 0;
+				cactus = [];
+				insertdinos();
+			}
+			
+		},fps)
+
+		function die(){
+
+			speed = 10;
+			cactus=[];
+			score = 0;
+
+			insertdinos();
+		}
+
+		function update(){
+
+			for (var i = cactus.length - 1; i >= 0; i--) {
+
+				cactus[i].x-=0.8*speed;
+
+				if(cactus[i].x+cactus[i].w < 0){
+					//score++;
+					if(score>maxscore){
+						maxscore = score;
+					}
+					cactus.splice(i,1);
+				}
+				
+			}
+
+			for (var x = dinos.length - 1; x >= 0; x--) {
+
+			if(out(x) >= 500){
+				jump(x);
+			}
+			
+			dinos[x].y += dinos[x].spdy;
+			
+			dinos[x].spdy-= gravity;
+			
+			if(dinos[x].y<0){
+				dinos[x].spdy=0;
+				dinos[x].y=0;
+			}
+
+			if(cactus.length>0){
+				if(dinos[x].y<=50 && 50<=cactus[0].x+cactus[0].w && 50>=cactus[0].x){
+					brn = dinos[x].rn;
+					dinos.splice(x,1);
+				}else if(dinos[x].jumps>=score+2){
+					dinos.splice(x,1);
+				} 
+			}
+		}
+		}
+
+		function drawrn(rt,v,output){
+
+			ctx.fillStyle = "#363636";
+			ctx.strokeStyle = "#888888";
+
+			let c0 = dinos[0].rn[0],c1 = dinos[0].rn[1];
+
+			for (var i = 3 - 1; i >= 0; i--) {
+				ctx.beginPath();
+  				ctx.moveTo(50,300+75*i);
+  				ctx.lineTo(200,300+75*i);
+  				ctx.lineWidth = 3;
+  				ctx.stroke();
+  				ctx.beginPath();
+				ctx.arc(50,300+75*i, 5+(10*(v[i])/300), 0, Math.PI * 2, true);ctx.fill();
+			}
+			for (var i = 3 - 1; i >= 0; i--) {
+				ctx.beginPath();
+  				ctx.moveTo(200,300+75*i);
+  				ctx.lineTo(300,325);
+  				ctx.moveTo(200,300+75*i);
+  				ctx.lineTo(300,425);
+  				ctx.lineWidth = 6+(3*c0[i]/100);
+  				ctx.stroke();
+				ctx.beginPath();
+				let r = 15+(10*rt[0][i])/500>0?15+(10*rt[0][i])/500:0;
+				ctx.arc(200,300+75*i, r, 0, Math.PI * 2, true);ctx.fill();
+			}
+			for (var i = 2 - 1; i >= 0; i--) {
+				ctx.beginPath();
+  				ctx.moveTo(300,325+100*i);
+  				ctx.lineTo(400,375);
+  				ctx.lineWidth = 6+(3*c1[i])/100;
+  				ctx.stroke();
+				ctx.beginPath();
+				let r = 15+(10*rt[1][i])/500?15+(10*rt[1][i])/500:0;
+				ctx.arc(300,325+100*i, 15+(10*rt[1][i])/500, 0, Math.PI * 2, true);ctx.fill();
+			}	
+			if(output>500){
+				ctx.fillStyle="green";
+			}else{
+				ctx.fillStyle="red";
+			}
+			ctx.beginPath();ctx.arc(400,375, 25+output*0.025, 0, Math.PI * 2, true);ctx.fill();
+
+		}
+
+		function draw(){
+			
+			ctx.fillStyle = "#363636";
+			ctx.strokeStyle = "#888888";
+			ctx.fillRect(0,247,sw,2);
+			ctx.font = "50px Arial";
+			ctx.fillText(score,20,50,300,100);
+			ctx.fillText(maxscore,375,50,300,100);
+
+			for (var i = dinos.length - 1; i >= 0; i--) {
+			
+			if(frames%2 == 0){
+				ctx.drawImage(dr1,50,200-dinos[i].y,dw,dh);
+			}else{
+				ctx.drawImage(dr2,50,200-dinos[i].y,dw,dh);
+			}
+			
+			}
+			for (var i = cactus.length - 1; i >= 0; i--) {
+				let cactu = cactus[i];
+				let cac = eval("cac"+cactu.cac);
+				ctx.drawImage(cac,cactu.x,200,cactu.w,50);
+			}
+
+			if(frames%timespawn == 0){
+				frames = 0;
+				insertcactu();
+				speed++;
+				timespawn = 50+Math.floor(Math.random()*50-0.01*speed);
+			}
+
+
+		}
+
+		</script>
+	</body>
+<html>	
