@@ -44,15 +44,13 @@
 
 		var dinos = [];
 
-		function insertdinos(){
+		function insertdinos(){		
 
-			dinos.push({y:0,spdy:0,rn:brn,jumps:0});
-
-			let change = Math.round(Math.random()*2);
+			let change = Math.round(Math.random()*4);
 
 			var dino = {},c0,c1;
 
-			for (var j = 9- 1; j >= 0; j--) {
+			for (var j = 999- 1; j >= 0; j--) {
 				
 			dino = {y:0,spdy:0,rn:[],jumps:0};
 
@@ -82,11 +80,11 @@
 
 			}
 
-			
+			dinos.push({y:0,spdy:0,rn:brn,jumps:0});
 		}
 
 		function r(){
-			return (Math.random()*10)-5;
+			return (Math.random()*100)-50;
 		}
 
 		function out(x){
@@ -241,7 +239,9 @@
 
 			if(cactus.length>0){
 				if(dinos[x].y<=50 && 50<=cactus[0].x+cactus[0].w && 50>=cactus[0].x){
-					brn = dinos[x].rn;
+					if(score>=maxscore){
+						brn = dinos[x].rn;
+					}
 					dinos.splice(x,1);
 				}else if(dinos[x].jumps>=score+2){
 					dinos.splice(x,1);
@@ -264,7 +264,11 @@
   				ctx.lineWidth = 3;
   				ctx.stroke();
   				ctx.beginPath();
-				ctx.arc(50,300+75*i, 5+(10*(v[i])/300), 0, Math.PI * 2, true);ctx.fill();
+				let r = (v[i]>0?v[i]:10)
+				if(r>50){
+					r=50;
+				}
+				ctx.arc(50,300+75*i, 5+(10*r/300), 0, Math.PI * 2, true);ctx.fill();
 			}
 			for (var i = 3 - 1; i >= 0; i--) {
 				ctx.beginPath();
@@ -275,7 +279,10 @@
   				ctx.lineWidth = 6+(3*c0[i]/100);
   				ctx.stroke();
 				ctx.beginPath();
-				let r = 15+(10*rt[0][i])/500>0?15+(10*rt[0][i])/500:0;
+				let r = 15+(10*rt[0][i])/500>0?15+(10*rt[0][i])/500:10;
+				if(r>50){
+					r=50
+				}
 				ctx.arc(200,300+75*i, r, 0, Math.PI * 2, true);ctx.fill();
 			}
 			for (var i = 2 - 1; i >= 0; i--) {
@@ -285,15 +292,22 @@
   				ctx.lineWidth = 6+(3*c1[i])/100;
   				ctx.stroke();
 				ctx.beginPath();
-				let r = 15+(10*rt[1][i])/500?15+(10*rt[1][i])/500:0;
-				ctx.arc(300,325+100*i, 15+(10*rt[1][i])/500, 0, Math.PI * 2, true);ctx.fill();
+				let r = (15+(10*rt[1][i])/500)>0?15+(10*rt[1][i])/500:10;
+				if(r>50){
+					r=50
+				}
+				ctx.arc(300,325+100*i, r, 0, Math.PI * 2, true);ctx.fill();
 			}	
 			if(output>500){
 				ctx.fillStyle="green";
+				output=500;
 			}else{
 				ctx.fillStyle="red";
+				if(output<0){
+					output = 10;
+				}
 			}
-			ctx.beginPath();ctx.arc(400,375, 25+output*0.025, 0, Math.PI * 2, true);ctx.fill();
+			ctx.beginPath();ctx.arc(400,375, 25+(output)*0.025, 0, Math.PI * 2, true);ctx.fill();
 
 		}
 
